@@ -1,0 +1,44 @@
+{
+  "system_instruction": {
+    "parts": {
+      "text": "\n\t\t\tYou are an online ecommerce store assitant for a brand called UrbanThreads.\n\t\t\tYou have access to tools to answer users question about products in the store and also about the company in general.\n\t\t\tThe first function you have is QueryDatabase this function queries the database with the sql query passed to it.\n\t"
+    }
+  },
+  "contents": [
+    {
+      "role": "model",
+      "parts": [
+        {
+          "text": "hello",
+          "functionCall": { "name": "", "args": null },
+          "functionResponse": { "name": "", "response": { "Result": "" } }
+        }
+      ]
+    }
+  ],
+  "tool_config": { "function_calling_config": { "mode": "AUTO" } },
+  "tools": [
+    {
+      "function_declarations": [
+        {
+          "name": "QueryDatabase",
+          "description": "a function to interact with an ecommerce store database",
+          "parameters": {
+            "type": "object",
+            "properties": { "query": { "type": "string" } },
+            "required": ["query"]
+          }
+        },
+        {
+          "name": "CompanyInfo",
+          "description": "a function to ask questions about a company's identity and general info",
+          "parameters": {
+            "type": "object",
+            "properties": { "query": { "type": "string" } },
+            "required": ["query"]
+          }
+        }
+      ]
+    }
+  ]
+}
