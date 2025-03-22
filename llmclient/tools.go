@@ -159,7 +159,7 @@ func (s *QueryStore) TrackOrder(orderID string) (*ToolCallResponse, error)  {
 	}
 
 	// Set headers correctly
-	req.Header.Set("Authorization", config.ShippoEnvs.ShippoAPIKey) // Ensure space after "ShippoToken"
+	req.Header.Set("Authorization", config.ShippoEnvs.ShippoAPIKey)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	client := &http.Client{}

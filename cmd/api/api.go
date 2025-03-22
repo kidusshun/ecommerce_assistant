@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/kidusshun/ecom_bot/llmclient"
 	"github.com/kidusshun/ecom_bot/service/chat"
+	"github.com/kidusshun/ecom_bot/service/coupons"
 	"github.com/kidusshun/ecom_bot/service/email"
 	"github.com/kidusshun/ecom_bot/service/product"
 	"github.com/kidusshun/ecom_bot/service/user"
@@ -55,9 +56,15 @@ func (s *APIServer) Run() error {
 	chatHandler := chat.NewHandler(chatService)
 	chatHandler.RegisterRoutes(router)
 
-	emailService := email.NewService(chatStore, client)
+	emailService := email.NewService(chatStore, client, userStore)
 	emailHandler := email.NewHandler(emailService)
 	emailHandler.RegisterRoutes(router)
+
+	couponStore := coupons.NewStore(s.db)
+	couponService := coupons.NewService(couponStore)
+	couponHandler := coupons.NewHandler(couponService)
+
+	couponHandler.RegisterRoutes(router)
 
 
 	log.Println("Listening on ", s.addr)

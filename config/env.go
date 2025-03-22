@@ -31,6 +31,8 @@ func initDatabaseConfig() Config {
 type GoogleConfig struct {
 	GoogleClientID     string
 	GoogleClientSecret string
+	GCPProjectID       string
+	GCBearerToken	  	string
 }
 
 type GeminiConfig struct {
@@ -67,6 +69,8 @@ func initGoogleConfig() GoogleConfig {
 	return GoogleConfig{
 		GoogleClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
 		GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
+		GCPProjectID:       getEnv("GCP_PROJECT_ID", ""),
+		GCBearerToken:      getEnv("GC_BEARER_TOKEN", ""),
 	}
 }
 

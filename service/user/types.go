@@ -10,6 +10,7 @@ type UserStore interface {
 	GetUserByEmail(email string) (*User, error)
 	GetUserByID(id uuid.UUID) (*User, error)
 	CreateUser(name, email, picture string) (*User, error)
+	GetAllUsers()(*[]User, error)
 }
 
 type User struct {

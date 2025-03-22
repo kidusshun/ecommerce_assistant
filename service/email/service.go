@@ -11,18 +11,21 @@ import (
 	"github.com/kidusshun/ecom_bot/config"
 	"github.com/kidusshun/ecom_bot/llmclient"
 	"github.com/kidusshun/ecom_bot/service/chat"
+	"github.com/kidusshun/ecom_bot/service/user"
 )
 
 type Service struct {
 	client llmclient.LlmClient
 	store chat.ChatStore
+	userStore user.UserStore
 }
 
 
-func NewService(store chat.ChatStore, client llmclient.LlmClient) *Service {
+func NewService(store chat.ChatStore, client llmclient.LlmClient, userStore user.UserStore) *Service {
 	return &Service{
 		client: client,
 		store:store,
+		userStore: userStore,
 	}
 }
 
@@ -34,7 +37,6 @@ type EmailMessage struct {
 }
 
 func (s *Service) SendEmailService(email string) error {
-	auth := smtp.PlainAuth("", config.SMTPEnvs.SenderEmail, config.SMTPEnvs.AppPassword, config.SMTPEnvs.SMTPServer)
 	messageHistory, err := s.store.GetChatHistory(uuid.New())
 	
 	if err != nil {
@@ -58,6 +60,50 @@ func (s *Service) SendEmailService(email string) error {
 
 	log.Println(responseMap)
 
+	return sendEmail(responseMap, email)
+
+}
+
+
+func (s *Service) SendCouponEmail(coupon CouponRequest) error {
+	response, err := s.client.GenerateCouponEmail(coupon.Code, coupon.Discount, coupon.ExpirationDate)
+
+	if err != nil {
+		return err
+	}
+	
+	results := response.Candidates[0].Content.Parts[0].Text
+	log.Println("response from gemini",results)
+	var responseMap map[string]string
+	err = json.Unmarshal([]byte(results), &responseMap)
+
+	if err != nil {
+		return err
+	}
+
+	log.Println(responseMap)
+
+	users, err := s.userStore.GetAllUsers()
+
+	
+	if err != nil {
+		return err
+	}
+	log.Println("got users")
+
+	err = nil
+	for _, user := range *users {
+		err =sendEmail(responseMap, user.Email)
+
+		log.Println("sent email to", user.Email, err)
+	}
+
+	return err
+}
+
+
+func sendEmail(responseMap map[string]string, email string) error {
+	auth := smtp.PlainAuth("", config.SMTPEnvs.SenderEmail, config.SMTPEnvs.AppPassword, config.SMTPEnvs.SMTPServer)
 	message := EmailMessage{
 		To: email,
 		Subject: responseMap["subject"],

@@ -2,6 +2,7 @@ package llmclient
 
 import (
 	"errors"
+	"fmt"
 	"log"
 )
 
@@ -70,6 +71,50 @@ func (client *llmclient) GenerateEmail(messageHistory []Message) (*GeminiRespons
 			
 		},
 	}
+	res, err := GeminiClient(geminiRequest)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (client *llmclient) GenerateCouponEmail(couponCode string, discountPercentage float64, expirationDate string) (*GeminiResponseBody, error) {
+	geminiRequest := GeminiRequestBody{
+		SystemInstruction: map[string]interface{}{
+			"parts": map[string]string{
+				"text": CouponSystemInstructions,
+			},
+		},
+		Contents: []Message{
+			{
+				Role: USER,
+				Parts: []Part{
+					{Text: fmt.Sprintf("the coupon has code %s with discount percentage of %s. It will expire on %s", couponCode, discountPercentage, expirationDate)},
+				},
+			},
+		},
+		ToolConfig: FunctionCallingConfig{
+			FunctionCallingConfig: Mode{
+				Mode: NONE,
+			},
+		},
+		GenerationConfig: GenerationConfig{
+			ResponseMimeType: "application/json",
+			ResponseSchema: map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"subject": map[string]string{
+						"type": "string",
+					},
+					"body": map[string]string{
+						"type": "string",
+					},
+				},
+			},
+			
+		},
+	}
+
 	res, err := GeminiClient(geminiRequest)
 	if err != nil {
 		return nil, err

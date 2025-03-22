@@ -10,6 +10,7 @@ type LlmClient interface{
 	CallGemini(messageHistory []Message, tools []Tool) (*GeminiResponseBody, error)
 	HandleFunctionCall(geminiresponse *GeminiResponseBody)(*ToolCallResponse, error)
 	GenerateEmail(messageHistory []Message) (*GeminiResponseBody, error) 
+	GenerateCouponEmail(couponCode string, discountPercentage float64, expirationDate string) (*GeminiResponseBody, error)
 }
 
 type Tools interface{

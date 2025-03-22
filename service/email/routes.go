@@ -23,6 +23,8 @@ func NewHandler(service EmailService) *Handler {
 
 func (h *Handler) RegisterRoutes(router chi.Router) {
 	router.Post("/track-activity", h.sendEmail)
+	router.Post("/send-coupon-email", h.couponEmail)
+
 }
 
 func (h *Handler) sendEmail(w http.ResponseWriter, r *http.Request) {
@@ -47,4 +49,28 @@ func (h *Handler) sendEmail(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusOK, map[string]string{"message": "Email sent successfully"})
 
+}
+
+
+func (h *Handler) couponEmail(w http.ResponseWriter, r *http.Request) {
+	var request CouponRequest
+
+	err := json.NewDecoder(r.Body).Decode(&request)
+
+	
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+	
+	log.Println(request)
+
+	err = h.service.SendCouponEmail(request)
+	if err != nil {
+		log.Println(err)
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]string{"message": "Email sent successfully"})
 }
